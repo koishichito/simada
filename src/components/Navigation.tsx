@@ -16,7 +16,7 @@ export default function Navigation() {
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
-          <Link href="/" className="font-bold text-lg text-gray-900">
+          <Link href="/" className="font-semibold text-base text-gray-900 tracking-tight">
             SIMADA
           </Link>
           <div className="flex gap-1">
@@ -26,14 +26,14 @@ export default function Navigation() {
                 <Link
                   key={p.href}
                   href={p.href}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
                     isActive
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-600 hover:bg-gray-100"
+                      ? "bg-indigo-600 text-white font-medium"
+                      : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                   }`}
                 >
                   <span className="hidden sm:inline">{p.label}</span>
-                  <span className="sm:hidden">型{p.short}</span>
+                  <span className="sm:hidden">{p.short}</span>
                 </Link>
               );
             })}
