@@ -19,6 +19,9 @@ import {
   MousePointerClick,
   Monitor,
   BookOpen,
+  Bot,
+  FileText,
+  UserCircle,
 } from "lucide-react";
 
 type Step = {
@@ -347,7 +350,41 @@ export default function TutorialPage() {
         })}
       </div>
 
-      <div className="mt-10 rounded-xl bg-gray-50 border border-gray-100 px-4 py-4">
+      <div className="mt-10 rounded-xl bg-violet-50/50 border border-violet-100 px-4 py-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Bot size={16} className="text-violet-600" />
+          <h2 className="text-sm font-medium text-gray-900">AI文書生成機能</h2>
+          <span className="text-[10px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-full font-medium">NEW</span>
+        </div>
+        <p className="text-xs text-gray-500 leading-relaxed mb-3">
+          Concierge-firstページでは、Claude AIを活用した文書自動生成機能が利用できます。
+        </p>
+        <ul className="space-y-2.5 text-xs text-gray-500">
+          <li className="flex items-start gap-2">
+            <UserCircle size={13} className="text-violet-500 mt-0.5 flex-shrink-0" />
+            <span>
+              <strong className="text-gray-700">医師の自己PR生成</strong> — 医師側ダッシュボードのプロフィールパネルから、登録情報をもとにAIが魅力的な自己PR文を自動作成します。「堅実」「親しみ」「積極的」の3つのトーンから選べます。
+            </span>
+          </li>
+          <li className="flex items-start gap-2">
+            <FileText size={13} className="text-violet-500 mt-0.5 flex-shrink-0" />
+            <span>
+              <strong className="text-gray-700">条件提示書の生成</strong> — 医院側ダッシュボードの「AI文書作成」セクションから、募集ポジションの情報をもとに医師向けの条件提示書をAIが自動作成します。
+            </span>
+          </li>
+        </ul>
+        <div className="mt-3">
+          <Link
+            href="/concierge"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-violet-600 hover:underline"
+          >
+            Concierge-first でAI生成を試す
+            <ArrowRight size={12} />
+          </Link>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-xl bg-gray-50 border border-gray-100 px-4 py-4">
         <h2 className="text-sm font-medium text-gray-900 mb-2">
           どのUIを選ぶべき？
         </h2>

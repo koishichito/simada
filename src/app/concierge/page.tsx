@@ -5,7 +5,8 @@ import { doctors, positions, clinics } from "@/lib/data";
 import type { Doctor, Position } from "@/lib/data";
 import {
   X, ArrowRight, Check, AlertTriangle, Calendar,
-  MapPin, Briefcase, GraduationCap, Stethoscope, ChevronRight
+  MapPin, Briefcase, GraduationCap, Stethoscope, ChevronRight,
+  Sparkles, Copy, RefreshCw, FileText, Loader2
 } from "lucide-react";
 
 function ScoreRing({ score }: { score: number }) {
@@ -185,6 +186,97 @@ function RecommendedDoctorCard({ doctor, position, rank, onAction, onDetail }: {
   );
 }
 
+function DoctorPRGenerator({ doctor }: { doctor: Doctor }) {
+  const [generatedPR, setGeneratedPR] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [tone, setTone] = useState<"professional" | "friendly" | "confident">("professional");
+  const [copied, setCopied] = useState(false);
+
+  const generatePR = async () => {
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "doctor-pr",
+          doctor: {
+            specialty: doctor.specialty,
+            subSpecialty: doctor.subSpecialty,
+            qualifications: doctor.qualifications,
+            procedures: doctor.procedures,
+            yearsOfExperience: doctor.yearsOfExperience,
+            currentAffiliation: doctor.currentAffiliation,
+            academicBackground: doctor.academicBackground,
+            availableDays: doctor.availableDays,
+            preferredArea: doctor.preferredArea,
+            preferredWorkStyle: doctor.preferredWorkStyle,
+            desiredSalary: doctor.desiredSalary,
+          },
+          tone,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setGeneratedPR(data.result);
+    } catch {
+      setGeneratedPR("⚠ 生成に失敗しました。ANTHROPIC_API_KEY が設定されているか確認してください。");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const copyToClipboard = () => {
+    if (generatedPR) {
+      navigator.clipboard.writeText(generatedPR);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  };
+
+  return (
+    <div className="mt-4 pt-3 border-t border-gray-100">
+      <div className="flex items-center gap-1.5 mb-2">
+        <Sparkles size={12} className="text-violet-500" />
+        <p className="text-[11px] font-medium text-gray-700">AI 自己PR生成</p>
+      </div>
+      <div className="flex gap-1 mb-2">
+        {([["professional", "堅実"], ["friendly", "親しみ"], ["confident", "積極的"]] as const).map(([value, label]) => (
+          <button
+            key={value}
+            onClick={() => setTone(value)}
+            className={`text-[10px] px-2 py-0.5 rounded-full cursor-pointer transition-colors ${tone === value ? "bg-violet-100 text-violet-700 font-medium" : "bg-gray-50 text-gray-400 hover:bg-gray-100"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <button
+        onClick={generatePR}
+        disabled={isGenerating}
+        className="w-full bg-violet-600 text-white text-[11px] py-1.5 rounded-lg hover:bg-violet-700 cursor-pointer font-medium flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isGenerating ? <><Loader2 size={12} className="animate-spin" /> 生成中...</> : <><Sparkles size={12} /> 自己PRを生成</>}
+      </button>
+      {generatedPR && (
+        <div className="mt-2.5">
+          <div className="bg-violet-50/50 rounded-lg p-2.5 text-[11px] text-gray-700 leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">
+            {generatedPR}
+          </div>
+          <div className="flex gap-1.5 mt-1.5">
+            <button onClick={copyToClipboard} className="flex items-center gap-1 text-[10px] text-gray-500 hover:text-violet-600 cursor-pointer px-1.5 py-0.5 rounded hover:bg-gray-50">
+              {copied ? <><Check size={10} className="text-green-500" /> コピー済</> : <><Copy size={10} /> コピー</>}
+            </button>
+            <button onClick={generatePR} disabled={isGenerating} className="flex items-center gap-1 text-[10px] text-gray-500 hover:text-violet-600 cursor-pointer px-1.5 py-0.5 rounded hover:bg-gray-50 disabled:opacity-50">
+              <RefreshCw size={10} /> 再生成
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DoctorProfilePanel({ doctor }: { doctor: Doctor }) {
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-4 sticky top-16">
@@ -230,6 +322,99 @@ function DoctorProfilePanel({ doctor }: { doctor: Doctor }) {
           ))}
         </div>
       </div>
+      <DoctorPRGenerator doctor={doctor} />
+    </div>
+  );
+}
+
+function ClinicProposalGenerator({ position, clinicData }: { position: Position; clinicData?: typeof clinics[0] }) {
+  const [generatedProposal, setGeneratedProposal] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const generate = async () => {
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "clinic-proposal",
+          position: {
+            title: position.title,
+            clinicName: position.clinicName,
+            clinicType: position.clinicType,
+            area: position.area,
+            specialty: position.specialty,
+            requiredQualifications: position.requiredQualifications,
+            preferredQualifications: position.preferredQualifications,
+            preferredProcedures: position.preferredProcedures,
+            employmentType: position.employmentType,
+            workSchedule: position.workSchedule,
+            salary: position.salary,
+            benefits: position.benefits,
+            reason: position.reason,
+            reasonDetail: position.reasonDetail,
+          },
+          clinic: clinicData ? {
+            name: clinicData.name,
+            area: clinicData.area,
+            type: clinicData.type,
+            bedCount: clinicData.bedCount,
+            staffCount: clinicData.staffCount,
+            features: clinicData.features,
+          } : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setGeneratedProposal(data.result);
+    } catch {
+      setGeneratedProposal("⚠ 生成に失敗しました。ANTHROPIC_API_KEY が設定されているか確認してください。");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const copyToClipboard = () => {
+    if (generatedProposal) {
+      navigator.clipboard.writeText(generatedProposal);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-1.5">
+          <FileText size={14} className="text-indigo-500" />
+          <p className="text-xs font-medium text-gray-700">条件提示書を作成</p>
+        </div>
+        <p className="text-[11px] text-gray-400">{position.title}</p>
+      </div>
+      <button
+        onClick={generate}
+        disabled={isGenerating}
+        className="w-full bg-indigo-600 text-white text-xs py-2 rounded-lg hover:bg-indigo-700 cursor-pointer font-medium flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isGenerating ? <><Loader2 size={13} className="animate-spin" /> AI生成中...</> : <><Sparkles size={13} /> AIで条件提示書を生成</>}
+      </button>
+      {generatedProposal && (
+        <div className="mt-3">
+          <div className="bg-indigo-50/50 rounded-lg p-3 text-xs text-gray-700 leading-relaxed whitespace-pre-wrap max-h-64 overflow-y-auto">
+            {generatedProposal}
+          </div>
+          <div className="flex gap-1.5 mt-2">
+            <button onClick={copyToClipboard} className="flex items-center gap-1 text-[11px] text-gray-500 hover:text-indigo-600 cursor-pointer px-2 py-1 rounded hover:bg-gray-50">
+              {copied ? <><Check size={11} className="text-green-500" /> コピー済</> : <><Copy size={11} /> コピー</>}
+            </button>
+            <button onClick={generate} disabled={isGenerating} className="flex items-center gap-1 text-[11px] text-gray-500 hover:text-indigo-600 cursor-pointer px-2 py-1 rounded hover:bg-gray-50 disabled:opacity-50">
+              <RefreshCw size={11} /> 再生成
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -289,6 +474,21 @@ function ClinicDashboard() {
           他{recommendedDoctors.length - 3}名の候補を見る
         </button>
       )}
+
+      {/* AI条件提示書生成 */}
+      <div className="mt-6">
+        <div className="flex items-center gap-1.5 mb-3">
+          <Sparkles size={14} className="text-indigo-500" />
+          <h3 className="text-sm font-semibold text-gray-900">AI文書作成</h3>
+          <span className="text-[10px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded-full">NEW</span>
+        </div>
+        <div className="space-y-2">
+          {topPositions.slice(0, 2).map((pos) => {
+            const clinic = clinics.find((c) => c.id === pos.clinicId);
+            return <ClinicProposalGenerator key={pos.id} position={pos} clinicData={clinic} />;
+          })}
+        </div>
+      </div>
 
       {selectedDoctor && <DoctorDetailModal doctor={selectedDoctor.doctor} position={selectedDoctor.position} onClose={() => setSelectedDoctor(null)} />}
       {toast && <div className="fixed bottom-4 right-4 bg-gray-900 text-white px-3.5 py-2 rounded-lg text-xs z-50">{toast}</div>}
