@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles, LayoutGrid, GitBranch, ArrowRight } from "lucide-react";
+import { Sparkles, LayoutGrid, GitBranch, BookOpen, ArrowRight } from "lucide-react";
 
 const patterns = [
   {
@@ -42,6 +42,20 @@ export default function HomePage() {
           3つのUIアプローチ
         </p>
       </div>
+
+      <Link
+        href="/tutorial"
+        className="group flex items-center gap-3 rounded-xl bg-indigo-50/50 px-4 py-3 border border-indigo-100 transition-all hover:shadow-sm hover:border-indigo-200 mb-4"
+      >
+        <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-500 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+          <BookOpen size={16} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h2 className="text-sm font-medium text-gray-900">チュートリアル</h2>
+          <p className="text-xs text-gray-400 mt-0.5">各UIパターンの使い方ガイド</p>
+        </div>
+        <ArrowRight size={14} className="text-indigo-300 group-hover:text-indigo-400 transition-colors" />
+      </Link>
 
       <div className="space-y-2">
         {patterns.map((p) => {

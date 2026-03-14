@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles, LayoutGrid, GitBranch } from "lucide-react";
+import { Sparkles, LayoutGrid, GitBranch, BookOpen } from "lucide-react";
 
 const patterns = [
   { href: "/concierge", label: "Concierge", icon: Sparkles },
   { href: "/board", label: "Board", icon: LayoutGrid },
   { href: "/pipeline", label: "Pipeline", icon: GitBranch },
+  { href: "/tutorial", label: "Tutorial", icon: BookOpen },
 ];
 
 export default function Navigation() {
